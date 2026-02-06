@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { UtensilsCrossed, BookOpen, User as UserIcon, LogOut, Users } from 'lucide-react';
+import { UtensilsCrossed, BookOpen, User as UserIcon, LogOut, Users, Clock } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { AuthModal } from './Auth/AuthModal';
 
@@ -43,6 +43,15 @@ export const Header: React.FC = () => {
               <BookOpen size={18} />
               <span className="hidden sm:inline">My Cookbook</span>
             </Link>
+            {user && (
+              <Link
+                to="/history"
+                className={`flex items-center gap-2 font-medium text-sm transition-colors ${isActive('/history') ? 'text-amber-600' : 'text-stone-600 hover:text-stone-900'}`}
+              >
+                <Clock size={18} />
+                <span className="hidden sm:inline">History</span>
+              </Link>
+            )}
 
             {user ? (
               <div className="flex items-center gap-4 border-l border-stone-200 pl-6">
@@ -50,13 +59,20 @@ export const Header: React.FC = () => {
                   <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center text-amber-700 font-bold text-xs uppercase">
                     {user.email?.substring(0, 2)}
                   </div>
-                  <span className="text-xs font-medium text-stone-500 hidden md:block max-w-[100px] truncate">
-                    {user.email}
-                  </span>
+                  <div className="text-right hidden md:block">
+                    <p className="text-sm font-bold text-stone-900">{user.email}</p>
+                  </div>
                 </div>
+                <Link
+                  to="/profile"
+                  className="p-2 text-stone-400 hover:text-amber-600 transition-colors"
+                  title="Profile"
+                >
+                  <UserIcon size={20} />
+                </Link>
                 <button
-                  onClick={() => signOut()}
-                  className="text-stone-400 hover:text-stone-700 transition-colors"
+                  onClick={signOut}
+                  className="p-2 text-stone-400 hover:text-stone-600 transition-colors"
                   title="Sign Out"
                 >
                   <LogOut size={18} />

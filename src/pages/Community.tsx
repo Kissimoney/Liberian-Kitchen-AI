@@ -5,10 +5,13 @@ import { recipeService } from '../services/recipeService';
 import { RecipeCard } from '../components/RecipeCard';
 import { RecipeCardSkeleton } from '../components/RecipeCardSkeleton';
 import { LayoutGrid, AlertCircle, Loader2, Users, BookOpen } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
 
 export const Community: React.FC = () => {
     const navigate = useNavigate();
+    const { user } = useAuth();
     const [recipes, setRecipes] = useState<Recipe[]>([]);
+    const [likedRecipeIds, setLikedRecipeIds] = useState<Set<string>>(new Set());
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -16,6 +19,11 @@ export const Community: React.FC = () => {
             try {
                 const data = await recipeService.getPublicRecipes();
                 setRecipes(data);
+
+                if (user) {
+                    const liked = await recipeService.getLikedRecipeIds(user.id);
+                    setLikedRecipeIds(liked);
+                }
             } catch (error) {
                 console.error("Failed to load community recipes:", error);
             } finally {
@@ -24,7 +32,33 @@ export const Community: React.FC = () => {
         };
 
         fetchPublicRecipes();
-    }, []);
+    }, [user]);
+
+    const handleLike = async (id: string) => {
+        if (!user) {
+            // Can prompt login or redirect
+            alert("Please sign in to like recipes!");
+            return;
+        }
+
+        // Optimistic update
+        const isLiked = likedRecipeIds.has(id);
+        const newSet = new Set(likedRecipeIds);
+        if (isLiked) {
+            newSet.delete(id);
+        } else {
+            newSet.add(id);
+        }
+        setLikedRecipeIds(newSet);
+
+        try {
+            await recipeService.toggleLike(id, user.id);
+        } catch (error) {
+            // Revert if failed
+            console.error("Failed to toggle like:", error);
+            setLikedRecipeIds(likedRecipeIds);
+        }
+    };
 
     return (
         <div className="max-w-5xl mx-auto px-4 py-12 min-h-screen">
@@ -64,7 +98,9 @@ export const Community: React.FC = () => {
                             key={recipe.id}
                             recipe={recipe}
                             onClick={(id) => navigate(`/recipe/${id}`)}
-                            isSaved={false} // We don't know if current user saved these specifically without extra check, assume false or check later
+                            isSaved={false}
+                            isLiked={likedRecipeIds.has(recipe.id)}
+                            onLike={handleLike}
                         />
                     ))}
                 </div>

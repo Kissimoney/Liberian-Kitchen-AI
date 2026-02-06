@@ -21,6 +21,10 @@ export interface Recipe {
   imageUrl?: string;
   generatedAt: number;
   source?: string;
+  author?: {
+    username?: string;
+    avatarUrl?: string;
+  };
 }
 
 export enum LoadingState {

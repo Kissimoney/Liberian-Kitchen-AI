@@ -5,6 +5,8 @@ import { Home } from './pages/Home';
 import { RecipeDetails } from './pages/RecipeDetails';
 import { SavedRecipes } from './pages/SavedRecipes';
 import { Community } from './pages/Community';
+import { History } from './pages/History';
+import { Profile } from './pages/Profile';
 import { AuthProvider } from './contexts/AuthContext';
 
 function App() {
@@ -18,6 +20,8 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/community" element={<Community />} />
               <Route path="/saved" element={<SavedRecipes />} />
+              <Route path="/history" element={<History />} />
+              <Route path="/profile" element={<Profile />} />
               <Route path="/recipe/:id" element={<RecipeDetails />} />
             </Routes>
           </main>

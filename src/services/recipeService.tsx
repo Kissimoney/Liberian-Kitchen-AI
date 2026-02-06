@@ -139,9 +139,70 @@ export const recipeService = {
         return !!data;
     },
 
+    async getLikedRecipeIds(userId: string): Promise<Set<string>> {
+        const { data, error } = await supabase
+            .from('likes')
+            .select('recipe_id')
+            .eq('user_id', userId);
+
+        if (error) return new Set();
+        return new Set(data.map(i => i.recipe_id));
+    },
+
+    async toggleLike(recipeId: string, userId: string): Promise<'liked' | 'unliked'> {
+        // Check if exists
+        const { data } = await supabase
+            .from('likes')
+            .select('user_id')
+            .match({ user_id: userId, recipe_id: recipeId })
+            .maybeSingle();
+
+        if (data) {
+            await supabase.from('likes').delete().match({ user_id: userId, recipe_id: recipeId });
+            return 'unliked';
+        } else {
+            await supabase.from('likes').insert({ user_id: userId, recipe_id: recipeId });
+            return 'liked';
+        }
+    },
+
+    async getHistory(userId: string): Promise<Recipe[]> {
+        const { data, error } = await supabase
+            .from('history')
+            .select(`
+                recipe:recipes (
+                    *
+                )
+            `)
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false })
+            .limit(20); // Limit to last 20 generated items
+
+        if (error) throw error;
+
+        return data.map((item: any) => ({
+            id: item.recipe.id,
+            title: item.recipe.title,
+            description: item.recipe.description,
+            ingredients: item.recipe.ingredients,
+            instructions: item.recipe.instructions,
+            prepTime: item.recipe.prep_time,
+            cookTime: item.recipe.cook_time,
+            servings: item.recipe.servings,
+            temperature: item.recipe.temperature,
+            averageRating: item.recipe.average_rating,
+            ratingCount: item.recipe.rating_count,
+            tags: item.recipe.tags,
+            nutrients: item.recipe.nutrients,
+            imageUrl: item.recipe.image_url,
+            source: item.recipe.source,
+            generatedAt: new Date(item.recipe.created_at).getTime()
+        }));
+    },
+
     async getPublicRecipes(): Promise<Recipe[]> {
         // Fetch recipes where public = true
-        const { data, error } = await supabase
+        const { data: recipes, error } = await supabase
             .from('recipes')
             .select('*')
             .eq('public', true)
@@ -150,7 +211,24 @@ export const recipeService = {
 
         if (error) throw error;
 
-        return data.map((item: any) => ({
+        // Fetch profiles for these recipes
+        const userIds = Array.from(new Set(recipes.map(r => r.user_id).filter(Boolean)));
+        let profilesMap: Record<string, any> = {};
+
+        if (userIds.length > 0) {
+            const { data: profiles } = await supabase
+                .from('profiles')
+                .select('id, username, avatar_url')
+                .in('id', userIds);
+
+            if (profiles) {
+                profiles.forEach(p => {
+                    profilesMap[p.id] = p;
+                });
+            }
+        }
+
+        return recipes.map((item: any) => ({
             id: item.id,
             title: item.title,
             description: item.description,
@@ -166,7 +244,11 @@ export const recipeService = {
             nutrients: item.nutrients,
             imageUrl: item.image_url,
             source: item.source,
-            generatedAt: new Date(item.created_at).getTime()
+            generatedAt: new Date(item.created_at).getTime(),
+            author: profilesMap[item.user_id] ? {
+                username: profilesMap[item.user_id].username,
+                avatarUrl: profilesMap[item.user_id].avatar_url
+            } : undefined
         }));
     },
 
