@@ -60,6 +60,11 @@ export const Community: React.FC = () => {
         }
     };
 
+    const handleShare = (id: string) => {
+        const url = `${window.location.origin}/#/recipe/${id}`;
+        navigator.clipboard.writeText(url);
+    };
+
     return (
         <div className="max-w-5xl mx-auto px-4 py-12 min-h-screen">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -101,6 +106,7 @@ export const Community: React.FC = () => {
                             isSaved={false}
                             isLiked={likedRecipeIds.has(recipe.id)}
                             onLike={handleLike}
+                            onShare={handleShare}
                         />
                     ))}
                 </div>

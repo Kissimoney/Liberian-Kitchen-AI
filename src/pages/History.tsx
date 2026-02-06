@@ -53,6 +53,11 @@ export const History: React.FC = () => {
         );
     }
 
+    const handleShare = (id: string) => {
+        const url = `${window.location.origin}/#/recipe/${id}`;
+        navigator.clipboard.writeText(url);
+    };
+
     return (
         <div className="max-w-5xl mx-auto px-4 py-12 min-h-screen">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -92,8 +97,8 @@ export const History: React.FC = () => {
                             key={recipe.id}
                             recipe={recipe}
                             onClick={(id) => navigate(`/recipe/${id}`)}
-                            isSaved={false} // History items aren't necessarily "Saved" in the cookbook sense, but they might be. 
-                        // Ideally we'd check against saved list, but for perf lets leave false/undefined.
+                            isSaved={false}
+                            onShare={handleShare}
                         />
                     ))}
                 </div>

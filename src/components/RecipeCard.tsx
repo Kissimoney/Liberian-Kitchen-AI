@@ -1,6 +1,6 @@
 import React from 'react';
 import { Recipe } from '../types';
-import { Clock, Users, ChevronRight, Bookmark, Heart } from 'lucide-react';
+import { Clock, Users, ChevronRight, Bookmark, Heart, Share2 } from 'lucide-react';
 
 interface RecipeCardProps {
   recipe: Recipe;
@@ -8,9 +8,21 @@ interface RecipeCardProps {
   isSaved?: boolean;
   isLiked?: boolean;
   onLike?: (id: string) => void;
+  onShare?: (id: string) => void;
 }
 
-export const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onClick, isSaved, isLiked, onLike }) => {
+export const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onClick, isSaved, isLiked, onLike, onShare }) => {
+  const [showShareTooltip, setShowShareTooltip] = React.useState(false);
+
+  const handleShareClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (onShare) {
+      onShare(recipe.id);
+      setShowShareTooltip(true);
+      setTimeout(() => setShowShareTooltip(false), 2000);
+    }
+  };
+
   return (
     <div
       onClick={() => onClick(recipe.id)}
@@ -49,6 +61,22 @@ export const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onClick, isSaved
             >
               <Heart size={16} fill={isLiked ? "currentColor" : "none"} />
             </button>
+          )}
+
+          {onShare && (
+            <div className="relative">
+              <button
+                onClick={handleShareClick}
+                className="bg-white/90 backdrop-blur-sm p-1.5 rounded-full shadow-sm transition-transform active:scale-95 text-stone-400 hover:text-stone-700"
+              >
+                <Share2 size={16} />
+              </button>
+              {showShareTooltip && (
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 bg-stone-800 text-white text-xs rounded shadow-lg whitespace-nowrap z-20">
+                  Copied!
+                </div>
+              )}
+            </div>
           )}
         </div>
 

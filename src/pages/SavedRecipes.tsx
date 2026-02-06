@@ -43,6 +43,11 @@ export const SavedRecipes: React.FC = () => {
     r.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
+  const handleShare = (id: string) => {
+    const url = `${window.location.origin}/#/recipe/${id}`;
+    navigator.clipboard.writeText(url);
+  };
+
   return (
     <div className="max-w-5xl mx-auto px-4 py-12 min-h-screen">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
@@ -95,6 +100,7 @@ export const SavedRecipes: React.FC = () => {
               recipe={recipe}
               onClick={(id) => navigate(`/recipe/${id}`)}
               isSaved={true}
+              onShare={handleShare}
             />
           ))}
         </div>
