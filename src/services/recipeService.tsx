@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import { Recipe } from '../types';
+import { Recipe, RecipeComment } from '../types';
 
 // Helper to handle image uploads
 async function ensureRecipeStored(recipe: Recipe, userId: string): Promise<Recipe> {
@@ -164,6 +164,49 @@ export const recipeService = {
             await supabase.from('likes').insert({ user_id: userId, recipe_id: recipeId });
             return 'liked';
         }
+    },
+
+    async getComments(recipeId: string): Promise<RecipeComment[]> {
+        const { data, error } = await supabase
+            .from('comments')
+            .select(`
+                id,
+                content,
+                created_at,
+                user_id,
+                user:profiles (
+                    username,
+                    avatar_url
+                )
+            `)
+            .eq('recipe_id', recipeId)
+            .order('created_at', { ascending: true });
+
+        if (error) throw error;
+
+        return data.map((item: any) => ({
+            id: item.id,
+            recipeId: recipeId,
+            userId: item.user_id,
+            content: item.content,
+            createdAt: new Date(item.created_at).getTime(),
+            author: {
+                username: item.user?.username || 'Unknown User',
+                avatarUrl: item.user?.avatar_url
+            }
+        }));
+    },
+
+    async addComment(recipeId: string, userId: string, content: string): Promise<void> {
+        const { error } = await supabase
+            .from('comments')
+            .insert({
+                recipe_id: recipeId,
+                user_id: userId,
+                content: content
+            });
+
+        if (error) throw error;
     },
 
     async getHistory(userId: string): Promise<Recipe[]> {

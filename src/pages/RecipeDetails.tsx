@@ -18,6 +18,7 @@ import { NutrientBarChart } from '../components/NutrientBarChart';
 import { ShareToolbar } from '../components/Recipe/ShareToolbar';
 import { CuisineInfo } from '../components/Recipe/CuisineInfo';
 import { RecipeVariation } from '../components/Recipe/RecipeVariation';
+import { CommentsSection } from '../components/CommentsSection';
 import { RelatedDishes } from '../components/Recipe/RelatedDishes';
 
 interface NavigationState {
@@ -390,6 +391,8 @@ export const RecipeDetails: React.FC = () => {
               {!isPrinting && (
                 <RelatedDishes relatedDishes={relatedDishes} cuisineName={cuisineInfo.name} />
               )}
+
+              {!isPrinting && <CommentsSection recipeId={recipe.id} />}
 
               <div className="mt-12 p-6 bg-stone-900 rounded-xl text-center text-stone-400 print:hidden">
                 <ChefHat className="mx-auto mb-3 text-amber-500" size={32} />

@@ -41,3 +41,15 @@ export interface GenerationRequest {
   isVegetarian?: boolean;
   spicinessLevel?: 'Mild' | 'Medium' | 'Hot' | 'Liberian Hot';
 }
+
+export interface RecipeComment {
+  id: string;
+  recipeId: string;
+  userId: string;
+  content: string;
+  createdAt: number;
+  author?: {
+    username: string;
+    avatarUrl?: string;
+  };
+}
