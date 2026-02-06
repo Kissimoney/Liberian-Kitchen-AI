@@ -1,5 +1,5 @@
-import React from 'react';
-import { Pencil, Check, X, Plus } from 'lucide-react';
+import React, { useState } from 'react';
+import { Pencil, Check, X, Plus, CheckSquare, Square } from 'lucide-react';
 import { Recipe } from '../../types';
 
 interface IngredientsListProps {
@@ -25,6 +25,18 @@ export const IngredientsList: React.FC<IngredientsListProps> = ({
     onChange,
     onAdd
 }) => {
+    const [checkedItems, setCheckedItems] = useState<Set<number>>(new Set());
+
+    const toggleCheck = (index: number) => {
+        const newChecked = new Set(checkedItems);
+        if (newChecked.has(index)) {
+            newChecked.delete(index);
+        } else {
+            newChecked.add(index);
+        }
+        setCheckedItems(newChecked);
+    };
+
     return (
         <div className="mb-8 print:mb-4">
             <div className="flex justify-between items-end mb-6 print:mb-2 print:border-b print:border-stone-300">
@@ -78,12 +90,21 @@ export const IngredientsList: React.FC<IngredientsListProps> = ({
                         </li>
                     ))
                 ) : (
-                    recipe.ingredients.map((ing, i) => (
-                        <li key={i} className="flex items-start gap-3 text-stone-700 text-sm print:text-black print:text-sm print:break-inside-avoid">
-                            <div className="w-1.5 h-1.5 rounded-full bg-amber-500 mt-2 shrink-0 print:bg-black print:mt-1.5"></div>
-                            <span className="leading-relaxed">{ing}</span>
-                        </li>
-                    ))
+                    recipe.ingredients.map((ing, i) => {
+                        const isChecked = checkedItems.has(i);
+                        return (
+                            <li
+                                key={i}
+                                className={`flex items-start gap-3 text-sm print:text-black print:text-sm print:break-inside-avoid cursor-pointer group transition-all duration-200 ${isChecked ? 'text-stone-400 line-through decoration-stone-400' : 'text-stone-700'}`}
+                                onClick={() => toggleCheck(i)}
+                            >
+                                <div className={`mt-0.5 shrink-0 transition-colors ${isChecked ? 'text-amber-400' : 'text-stone-300 group-hover:text-amber-500'}`}>
+                                    {isChecked ? <CheckSquare size={18} /> : <Square size={18} />}
+                                </div>
+                                <span className="leading-relaxed">{ing}</span>
+                            </li>
+                        )
+                    })
                 )}
             </ul>
 
