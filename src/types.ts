@@ -53,3 +53,20 @@ export interface RecipeComment {
     avatarUrl?: string;
   };
 }
+
+export interface Notification {
+  id: string;
+  userId: string; // The recipient
+  actorId: string; // The person who did the action
+  recipeId: string | null;
+  type: 'like' | 'comment';
+  read: boolean;
+  createdAt: number;
+  actor?: {
+    username: string;
+    avatarUrl?: string;
+  };
+  recipe?: {
+    title: string;
+  };
+}

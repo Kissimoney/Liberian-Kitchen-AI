@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import { Recipe, RecipeComment } from '../types';
+import { Recipe, RecipeComment, Notification } from '../types';
 
 // Helper to handle image uploads
 async function ensureRecipeStored(recipe: Recipe, userId: string): Promise<Recipe> {
@@ -205,6 +205,58 @@ export const recipeService = {
                 user_id: userId,
                 content: content
             });
+
+        if (error) throw error;
+    },
+
+    async getNotifications(userId: string): Promise<Notification[]> {
+        const { data, error } = await supabase
+            .from('notifications')
+            .select(`
+                id,
+                type,
+                read,
+                created_at,
+                actor_id,
+                recipe_id,
+                actor:profiles!actor_id (
+                    username,
+                    avatar_url
+                ),
+                recipe:recipes!recipe_id (
+                    title
+                )
+            `)
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false })
+            .limit(20);
+
+        if (error) throw error;
+
+        return data.map((item: any) => ({
+            id: item.id,
+            userId: userId,
+            actorId: item.actor_id,
+            recipeId: item.recipe_id,
+            type: item.type,
+            read: item.read,
+            createdAt: new Date(item.created_at).getTime(),
+            actor: {
+                username: item.actor?.username || 'Unknown User',
+                avatarUrl: item.actor?.avatar_url
+            },
+            recipe: item.recipe ? {
+                title: item.recipe.title
+            } : undefined
+        }));
+    },
+
+    async markNotificationsAsRead(userId: string): Promise<void> {
+        const { error } = await supabase
+            .from('notifications')
+            .update({ read: true })
+            .eq('user_id', userId)
+            .eq('read', false);
 
         if (error) throw error;
     },

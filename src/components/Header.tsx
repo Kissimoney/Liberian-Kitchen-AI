@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { UtensilsCrossed, BookOpen, User as UserIcon, LogOut, Users, Clock } from 'lucide-react';
+import { UtensilsCrossed, BookOpen, User as UserIcon, LogOut, Users, Clock, Bell } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { AuthModal } from './Auth/AuthModal';
 
@@ -25,20 +25,20 @@ export const Header: React.FC = () => {
           <nav className="flex items-center gap-6">
             <Link
               to="/"
-              className={`font-medium text-sm transition-colors ${isActive('/') ? 'text-amber-600' : 'text-stone-600 hover:text-stone-900'}`}
+              className={`font - medium text - sm transition - colors ${isActive('/') ? 'text-amber-600' : 'text-stone-600 hover:text-stone-900'} `}
             >
               Create
             </Link>
             <Link
               to="/community"
-              className={`flex items-center gap-2 font-medium text-sm transition-colors ${isActive('/community') ? 'text-amber-600' : 'text-stone-600 hover:text-stone-900'}`}
+              className={`flex items - center gap - 2 font - medium text - sm transition - colors ${isActive('/community') ? 'text-amber-600' : 'text-stone-600 hover:text-stone-900'} `}
             >
               <Users size={18} />
               <span className="hidden sm:inline">Community</span>
             </Link>
             <Link
               to="/saved"
-              className={`flex items-center gap-2 font-medium text-sm transition-colors ${isActive('/saved') ? 'text-amber-600' : 'text-stone-600 hover:text-stone-900'}`}
+              className={`flex items - center gap - 2 font - medium text - sm transition - colors ${isActive('/saved') ? 'text-amber-600' : 'text-stone-600 hover:text-stone-900'} `}
             >
               <BookOpen size={18} />
               <span className="hidden sm:inline">My Cookbook</span>
@@ -46,7 +46,7 @@ export const Header: React.FC = () => {
             {user && (
               <Link
                 to="/history"
-                className={`flex items-center gap-2 font-medium text-sm transition-colors ${isActive('/history') ? 'text-amber-600' : 'text-stone-600 hover:text-stone-900'}`}
+                className={`flex items - center gap - 2 font - medium text - sm transition - colors ${isActive('/history') ? 'text-amber-600' : 'text-stone-600 hover:text-stone-900'} `}
               >
                 <Clock size={18} />
                 <span className="hidden sm:inline">History</span>
@@ -63,6 +63,13 @@ export const Header: React.FC = () => {
                     <p className="text-sm font-bold text-stone-900">{user.email}</p>
                   </div>
                 </div>
+                <Link
+                  to="/notifications"
+                  className="p-2 text-stone-400 hover:text-amber-600 transition-colors"
+                  title="Notifications"
+                >
+                  <Bell size={20} />
+                </Link>
                 <Link
                   to="/profile"
                   className="p-2 text-stone-400 hover:text-amber-600 transition-colors"

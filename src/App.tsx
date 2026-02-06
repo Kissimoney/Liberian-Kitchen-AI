@@ -7,6 +7,7 @@ import { SavedRecipes } from './pages/SavedRecipes';
 import { Community } from './pages/Community';
 import { History } from './pages/History';
 import { Profile } from './pages/Profile';
+import { Notifications } from './pages/Notifications';
 import { AuthProvider } from './contexts/AuthContext';
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
               <Route path="/saved" element={<SavedRecipes />} />
               <Route path="/history" element={<History />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/notifications" element={<Notifications />} />
               <Route path="/recipe/:id" element={<RecipeDetails />} />
             </Routes>
           </main>
