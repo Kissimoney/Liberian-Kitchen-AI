@@ -65,14 +65,34 @@ export const Community: React.FC = () => {
         navigator.clipboard.writeText(url);
     };
 
+    const [searchTerm, setSearchTerm] = useState('');
+
+    const filteredRecipes = recipes.filter(r =>
+        r.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        r.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (r.tags && r.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))) ||
+        (r.author?.username && r.author.username.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+
     return (
         <div className="max-w-5xl mx-auto px-4 py-12 min-h-screen">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div className="text-center mb-10">
                     <h1 className="text-3xl font-serif font-bold text-stone-900 mb-2">Community Kitchen</h1>
-                    <p className="text-stone-600 max-w-2xl mx-auto">
+                    <p className="text-stone-600 max-w-2xl mx-auto mb-8">
                         Explore authentic Liberian recipes created by our community. Discover new favorites and share the taste of Liberia.
                     </p>
+
+                    <div className="relative max-w-md mx-auto">
+                        <input
+                            type="text"
+                            placeholder="Search recipes, ingredients, or chefs..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full pl-10 pr-4 py-3 rounded-full border border-stone-200 bg-white focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none shadow-sm transition-shadow"
+                        />
+                        <BookOpen className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" size={18} />
+                    </div>
                 </div>
             </div>
 
@@ -96,9 +116,19 @@ export const Community: React.FC = () => {
                         Create & Share
                     </button>
                 </div>
+            ) : filteredRecipes.length === 0 ? (
+                <div className="text-center py-20 text-stone-500">
+                    <p className="text-lg">No recipes found matching "{searchTerm}"</p>
+                    <button
+                        onClick={() => setSearchTerm('')}
+                        className="mt-2 text-amber-600 hover:underline"
+                    >
+                        Clear search
+                    </button>
+                </div>
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {recipes.map(recipe => (
+                    {filteredRecipes.map(recipe => (
                         <RecipeCard
                             key={recipe.id}
                             recipe={recipe}
