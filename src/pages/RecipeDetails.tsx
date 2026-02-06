@@ -73,29 +73,6 @@ export const RecipeDetails: React.FC = () => {
     };
   }, []);
 
-  useEffect(() => {
-    if (!id) return;
-
-    const savedRecipes = JSON.parse(localStorage.getItem('liberian_recipes') || '[]');
-    const savedIndex = savedRecipes.findIndex((r: Recipe) => r.id === id);
-
-    setIsSaved(savedIndex !== -1);
-
-    if (locationState?.recipe) {
-      setRecipe(locationState.recipe);
-    } else if (savedIndex !== -1) {
-      setRecipe(savedRecipes[savedIndex]);
-    } else {
-      navigate('/saved');
-    }
-
-    const allRatings = JSON.parse(localStorage.getItem('liberian_kitchen_ratings') || '{}');
-    if (allRatings[id]) {
-      setUserRating(allRatings[id]);
-    }
-
-  }, [id, navigate, locationState]);
-
   // Import these (I will handle imports in a separate instruction or assume I need to add them at the top)
   const { user } = useAuth();
 

@@ -261,6 +261,29 @@ export const recipeService = {
         if (error) throw error;
     },
 
+    async rateRecipe(recipeId: string, userId: string, rating: number): Promise<void> {
+        const { error } = await supabase
+            .from('ratings')
+            .upsert({
+                recipe_id: recipeId,
+                user_id: userId,
+                rating: rating
+            }, { onConflict: 'user_id, recipe_id' });
+
+        if (error) throw error;
+    },
+
+    async getUserRating(recipeId: string, userId: string): Promise<number | null> {
+        const { data, error } = await supabase
+            .from('ratings')
+            .select('rating')
+            .match({ user_id: userId, recipe_id: recipeId })
+            .maybeSingle();
+
+        if (error) throw error;
+        return data ? data.rating : null;
+    },
+
     async getHistory(userId: string): Promise<Recipe[]> {
         const { data, error } = await supabase
             .from('history')
@@ -327,19 +350,21 @@ export const recipeService = {
             id: item.id,
             title: item.title,
             description: item.description,
-            ingredients: item.ingredients,
-            instructions: item.instructions,
+            ingredients: item.ingredients || [],
+            instructions: item.instructions || [],
             prepTime: item.prep_time,
             cookTime: item.cook_time,
             servings: item.servings,
-            temperature: item.temperature,
-            averageRating: item.average_rating,
-            ratingCount: item.rating_count,
-            tags: item.tags,
+            cuisine: item.cuisine,
+            isVegetarian: item.is_vegetarian,
+            spicinessLevel: item.spiciness_level,
             nutrients: item.nutrients,
             imageUrl: item.image_url,
-            source: item.source,
             generatedAt: new Date(item.created_at).getTime(),
+            tags: item.tags || [],
+            source: item.source,
+            averageRating: item.average_rating || 0,
+            ratingCount: item.rating_count || 0,
             author: profilesMap[item.user_id] ? {
                 username: profilesMap[item.user_id].username,
                 avatarUrl: profilesMap[item.user_id].avatar_url

@@ -66,13 +66,22 @@ export const Community: React.FC = () => {
     };
 
     const [searchTerm, setSearchTerm] = useState('');
+    const [sortBy, setSortBy] = useState<'newest' | 'top'>('newest');
 
-    const filteredRecipes = recipes.filter(r =>
-        r.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        r.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (r.tags && r.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))) ||
-        (r.author?.username && r.author.username.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
+    const filteredRecipes = recipes
+        .filter(r =>
+            r.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            r.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (r.tags && r.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))) ||
+            (r.author?.username && r.author.username.toLowerCase().includes(searchTerm.toLowerCase()))
+        )
+        .sort((a, b) => {
+            if (sortBy === 'newest') {
+                return b.generatedAt - a.generatedAt;
+            } else {
+                return (b.averageRating || 0) - (a.averageRating || 0);
+            }
+        });
 
     return (
         <div className="max-w-5xl mx-auto px-4 py-12 min-h-screen">
@@ -83,7 +92,7 @@ export const Community: React.FC = () => {
                         Explore authentic Liberian recipes created by our community. Discover new favorites and share the taste of Liberia.
                     </p>
 
-                    <div className="relative max-w-md mx-auto">
+                    <div className="relative max-w-md mx-auto mb-6">
                         <input
                             type="text"
                             placeholder="Search recipes, ingredients, or chefs..."
@@ -92,6 +101,21 @@ export const Community: React.FC = () => {
                             className="w-full pl-10 pr-4 py-3 rounded-full border border-stone-200 bg-white focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none shadow-sm transition-shadow"
                         />
                         <BookOpen className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" size={18} />
+                    </div>
+
+                    <div className="flex justify-center gap-4 text-sm">
+                        <button
+                            onClick={() => setSortBy('newest')}
+                            className={`px-4 py-1 rounded-full transition-colors ${sortBy === 'newest' ? 'bg-amber-100 text-amber-700 font-medium' : 'text-stone-500 hover:bg-stone-100'}`}
+                        >
+                            Newest
+                        </button>
+                        <button
+                            onClick={() => setSortBy('top')}
+                            className={`px-4 py-1 rounded-full transition-colors ${sortBy === 'top' ? 'bg-amber-100 text-amber-700 font-medium' : 'text-stone-500 hover:bg-stone-100'}`}
+                        >
+                            Top Rated
+                        </button>
                     </div>
                 </div>
             </div>

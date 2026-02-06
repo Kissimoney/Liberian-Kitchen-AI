@@ -1,6 +1,6 @@
 import React from 'react';
 import { Recipe } from '../types';
-import { Clock, Users, ChevronRight, Bookmark, Heart, Share2 } from 'lucide-react';
+import { Clock, Users, ChevronRight, Bookmark, Heart, Share2, Star } from 'lucide-react';
 
 interface RecipeCardProps {
   recipe: Recipe;
