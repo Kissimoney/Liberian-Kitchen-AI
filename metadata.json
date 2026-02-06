@@ -1,0 +1,5 @@
+{
+  "name": "Liberian Kitchen AI",
+  "description": "An AI-powered Liberian cookbook generator that creates authentic recipes, nutritional breakdowns, and visualizes dishes using Gemini.",
+  "requestFramePermissions": []
+}
