@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { recipeService } from '../services/recipeService';
 import { RecipeComment } from '../types';
-import { User, Send, Loader2 } from 'lucide-react';
+import { User, Send, Loader2, Trash2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface CommentsSectionProps {
@@ -16,6 +16,7 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({ recipeId }) =>
     const [newComment, setNewComment] = useState('');
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
+    const [deletingId, setDeletingId] = useState<string | null>(null);
 
     useEffect(() => {
         fetchComments();
@@ -50,6 +51,21 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({ recipeId }) =>
         }
     };
 
+    const handleDelete = async (commentId: string) => {
+        if (!window.confirm("Are you sure you want to delete this comment?")) return;
+
+        try {
+            setDeletingId(commentId);
+            await recipeService.deleteComment(commentId);
+            setComments(prev => prev.filter(c => c.id !== commentId));
+        } catch (error) {
+            console.error("Failed to delete comment:", error);
+            alert("Failed to delete comment.");
+        } finally {
+            setDeletingId(null);
+        }
+    };
+
     return (
         <div className="bg-white rounded-xl shadow-sm border border-stone-200 p-6 mt-8">
             <h3 className="text-xl font-serif font-bold text-stone-900 mb-6">Comments ({comments.length})</h3>
@@ -63,7 +79,7 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({ recipeId }) =>
                     <p className="text-stone-500 text-center py-4 italic">No comments yet. Be the first to share your thoughts!</p>
                 ) : (
                     comments.map((comment) => (
-                        <div key={comment.id} className="flex gap-4">
+                        <div key={comment.id} className="flex gap-4 group">
                             <div className="flex-shrink-0">
                                 {comment.author?.avatarUrl ? (
                                     <img
@@ -78,14 +94,34 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({ recipeId }) =>
                                 )}
                             </div>
                             <div className="flex-1">
-                                <div className="bg-stone-50 rounded-lg p-4">
+                                <div className="bg-stone-50 rounded-lg p-4 relative group">
                                     <div className="flex items-center justify-between mb-2">
-                                        <span className="font-semibold text-stone-900">{comment.author?.username || 'Unknown User'}</span>
+                                        <div className="flex items-center gap-2">
+                                            <span className="font-semibold text-stone-900">{comment.author?.username || 'Unknown User'}</span>
+                                            {user && user.id === comment.userId && (
+                                                <span className="text-xs bg-amber-100 text-amber-800 px-1.5 py-0.5 rounded-full font-medium">You</span>
+                                            )}
+                                        </div>
                                         <span className="text-xs text-stone-400">
                                             {new Date(comment.createdAt).toLocaleDateString()}
                                         </span>
                                     </div>
                                     <p className="text-stone-700 text-sm whitespace-pre-wrap">{comment.content}</p>
+
+                                    {user && user.id === comment.userId && (
+                                        <button
+                                            onClick={() => handleDelete(comment.id)}
+                                            disabled={deletingId === comment.id}
+                                            className="absolute top-2 right-2 p-1.5 text-stone-400 hover:text-red-500 hover:bg-white rounded-full transition-all opacity-0 group-hover:opacity-100"
+                                            title="Delete comment"
+                                        >
+                                            {deletingId === comment.id ? (
+                                                <Loader2 size={14} className="animate-spin" />
+                                            ) : (
+                                                <Trash2 size={14} />
+                                            )}
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         </div>

@@ -209,6 +209,15 @@ export const recipeService = {
         if (error) throw error;
     },
 
+    async deleteComment(commentId: string): Promise<void> {
+        const { error } = await supabase
+            .from('comments')
+            .delete()
+            .eq('id', commentId);
+
+        if (error) throw error;
+    },
+
     async getNotifications(userId: string): Promise<Notification[]> {
         const { data, error } = await supabase
             .from('notifications')
