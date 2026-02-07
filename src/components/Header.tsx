@@ -29,7 +29,7 @@ export const Header: React.FC = () => {
       <header className="sticky top-0 z-50 backdrop-blur-xl bg-white/80 border-b border-stone-200/50 shadow-lg shadow-stone-200/20 print:hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16 md:h-20">
-            {/* Logo Section - Enhanced */}
+            {/* Logo Section - Clean & Separated */}
             <Link to="/" className="flex items-center gap-3 group relative mr-auto">
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-br from-amber-400 to-orange-500 rounded-xl blur-md opacity-0 group-hover:opacity-70 transition-opacity duration-300"></div>
@@ -39,8 +39,8 @@ export const Header: React.FC = () => {
               </div>
               <div className="flex flex-col">
                 <span className="text-xl md:text-2xl font-serif font-bold bg-gradient-to-r from-stone-900 via-stone-800 to-stone-900 bg-clip-text text-transparent leading-tight flex items-center">
-                  <span className="inline-block">Liberian</span>
-                  <span className="text-amber-600 inline-block ml-1.5">Kitchen</span>
+                  <span>Liberian</span>
+                  <span className="text-amber-600 ml-1.5 leading-none">Kitchen</span>
                 </span>
                 <span className="text-[10px] text-stone-500 tracking-wider uppercase font-semibold -mt-1 flex items-center gap-1">
                   <Sparkles size={8} className="text-amber-500" />
@@ -49,8 +49,8 @@ export const Header: React.FC = () => {
               </div>
             </Link>
 
-            {/* Desktop Navigation & User Section - STRICTLY HIDDEN ON MOBILE */}
-            <div className="hidden lg:flex items-center gap-4 mobile:hidden">
+            {/* Desktop Navigation - Hidden on Mobile via CSS ID */}
+            <div id="desktop-nav" className="hidden lg:flex items-center gap-4">
               <nav className="flex items-center gap-1">
                 {navLinks.map((link) => {
                   const Icon = link.icon;
@@ -96,8 +96,8 @@ export const Header: React.FC = () => {
               </div>
             </div>
 
-            {/* Hamburger Menu Button - ONLY VISIBLE ON MOBILE/TABLET */}
-            <div className="flex lg:hidden items-center">
+            {/* Hamburger Button Container - Shown only on Mobile via CSS ID */}
+            <div id="mobile-nav-toggle" className="flex lg:hidden items-center">
               <button
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
                 className="p-3 text-stone-600 hover:text-stone-900 hover:bg-stone-50 rounded-xl transition-all active:scale-95 flex items-center justify-center bg-stone-100/50"

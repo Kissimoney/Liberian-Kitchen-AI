@@ -359,88 +359,48 @@
     }
 }
 
-/* === Utility Classes === */
+/* === Header Visibility Force === */
+@media (max-width: 1023px) {
+    #desktop-nav {
+        display: none !important;
+    }
 
-/* Mobile-specific spacing */
-.mobile\:p-4 {
-    padding: 1rem !important;
+    #mobile-nav-toggle {
+        display: flex !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        position: relative !important;
+        z-index: 60 !important;
+    }
+
+    /* Hide any leaking Tailwind desktop components */
+    .lg\:flex {
+        display: none !important;
+    }
+
+    /* Exceptions for mobile core elements */
+    .flex.lg\:hidden {
+        display: flex !important;
+    }
 }
 
-.mobile\:px-4 {
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
+@media (min-width: 1024px) {
+    #mobile-nav-toggle {
+        display: none !important;
+    }
+
+    #desktop-nav {
+        display: flex !important;
+    }
 }
 
-.mobile\:py-4 {
-    padding-top: 1rem !important;
-    padding-bottom: 1rem !important;
-}
-
-.mobile\:m-0 {
-    margin: 0 !important;
-}
-
-.mobile\:mt-2 {
-    margin-top: 0.5rem !important;
-}
-
-.mobile\:mb-4 {
-    margin-bottom: 1rem !important;
-}
-
-/* Mobile text sizes */
-.mobile\:text-sm {
-    font-size: 0.875rem !important;
-}
-
-.mobile\:text-base {
-    font-size: 1rem !important;
-}
-
-.mobile\:text-lg {
-    font-size: 1.125rem !important;
-}
-
-/* Mobile flex */
-.mobile\:flex-col {
-    flex-direction: column !important;
-}
-
-.mobile\:items-stretch {
-    align-items: stretch !important;
-}
-
-.mobile\:justify-start {
-    justify-content: flex-start !important;
-}
-
-/* Mobile grid */
-.mobile\:grid-cols-1 {
-    grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
-}
-
-.mobile\:grid-cols-2 {
-    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-}
-
-/* Mobile width */
-.mobile\:w-full {
-    width: 100% !important;
-}
-
-.mobile\:max-w-none {
-    max-width: none !important;
-}
-
-/* Mobile display */
-.mobile\:hidden {
-    display: none !important;
-}
-
-.mobile\:block {
-    display: block !important;
-}
-
-.mobile\:flex {
-    display: flex !important;
+/* Unified Mobile Item Style */
+.mobile-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.875rem 1rem;
+    border-radius: 1rem;
+    font-weight: 700;
+    transition: all 0.2s;
 }
