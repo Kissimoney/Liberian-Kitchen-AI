@@ -7,7 +7,7 @@ if (!apiKey) {
   console.error("GEMINI_API_KEY is not defined in process.env");
 }
 
-console.log("Initializing Gemini Service: v1beta with gemini-1.5-flash");
+console.log("Initializing Gemini Service: v1beta with gemini-1.5-flash [VER_3_FINAL]");
 const genAI = new GoogleGenerativeAI(apiKey || 'DUMMY_KEY_FOR_BUILD');
 
 // Schema for structured recipe output
