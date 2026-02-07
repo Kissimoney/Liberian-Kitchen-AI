@@ -39,7 +39,7 @@ export const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onClick, isSaved
           />
         ) : (
           <img
-            src={`https://source.unsplash.com/featured/800x600?food,plate,${encodeURIComponent(recipe.title)}`}
+            src={`https://image.pollinations.ai/prompt/delicious ${encodeURIComponent(recipe.title)} dish food photography?width=800&height=600&nologo=true`}
             alt={recipe.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />

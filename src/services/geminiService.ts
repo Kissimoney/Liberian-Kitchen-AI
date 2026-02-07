@@ -102,15 +102,9 @@ export const generateRecipeText = async (request: GenerationRequest): Promise<Om
 };
 
 export const generateRecipeImage = async (recipeTitle: string): Promise<string | undefined> => {
-  // NOTE: gemini-1.5-flash does not natively generate images via the generative-ai SDK in this way 
-  // (it supports multimodal inputs, but not image output in one go).
-  // However, your original service was using it for images. 
-  // If you want real image generation, you usually use an Imagen model or a different service.
-  // For now, I'll return undefined to trigger the Unsplash fallback we built, 
-  // or use a structured prompt if you have a specific image model.
-
-  // Since the original was failing anyway, let's let the Unsplash fallback handle it.
-  return undefined;
+  // Use Pollinations.ai for free, high-quality AI food images
+  const prompt = `delicious ${recipeTitle} dish food photography`;
+  return `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=800&height=600&nologo=true`;
 };
 
 export const generateRecipeVariation = async (originalRecipe: Recipe, instruction: string): Promise<Omit<Recipe, 'id' | 'generatedAt'>> => {
