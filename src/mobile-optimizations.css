@@ -1,0 +1,446 @@
+/* ========================================
+   MOBILE-FIRST OPTIMIZATIONS
+   Professional mobile interface enhancements
+   ======================================== */
+
+/* === Typography === */
+@media (max-width: 640px) {
+    html {
+        font-size: 16px;
+        /* Ensures readable text on mobile */
+    }
+
+    /* Headings - Better mobile sizing */
+    h1 {
+        font-size: 2rem !important;
+        /* 32px */
+        line-height: 1.2 !important;
+    }
+
+    h2 {
+        font-size: 1.5rem !important;
+        /* 24px */
+        line-height: 1.3 !important;
+    }
+
+    h3 {
+        font-size: 1.25rem !important;
+        /* 20px */
+        line-height: 1.4 !important;
+    }
+
+    /* Body text */
+    p,
+    li,
+    span {
+        line-height: 1.6 !important;
+    }
+}
+
+/* === Touch Targets === */
+@media (max-width: 1024px) {
+
+    /* Ensure all interactive elements meet 44px minimum */
+    button,
+    a,
+    input,
+    select,
+    textarea,
+    [role="button"] {
+        min-height: 44px;
+    }
+
+    /* Larger tap areas for icons */
+    button>svg,
+    a>svg {
+        pointer-events: none;
+        /*Let parent handle clicks */
+    }
+}
+
+/* === Mobile Spacing === */
+@media (max-width: 640px) {
+
+    /* Reduce excessive padding on mobile */
+    .container,
+    .max-w-7xl,
+    .max-w-6xl,
+    .max-w-5xl,
+    .max-w-4xl {
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+    }
+
+    /* Tighter section spacing */
+    section {
+        padding-top: 2rem !important;
+        padding-bottom: 2rem !important;
+    }
+}
+
+/* === Cards === */
+@media (max-width: 640px) {
+
+    /* Full-width cards on mobile with edge-to-edge option */
+    .mobile-card-full {
+        margin-left: -1rem;
+        margin-right: -1rem;
+        border-radius: 0 !important;
+    }
+
+    /* Smaller card images */
+    .card-image {
+        min-height: 180px !important;
+        max-height: 200px !important;
+    }
+}
+
+/* === Forms === */
+@media (max-width: 640px) {
+
+    /* Full-width inputs on mobile */
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="search"],
+    textarea,
+    select {
+        font-size: 16px !important;
+        /* Prevents iOS zoom */
+        padding: 0.875rem !important;
+    }
+
+    /* Larger radio/checkbox targets */
+    input[type="radio"],
+    input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+/* === Modal Dialogs === */
+@media (max-width: 640px) {
+
+    /* Full-screen modals on mobile */
+    [role="dialog"] {
+        max-width: 100vw !important;
+        max-height: 100vh !important;
+        margin: 0 !important;
+        border-radius: 0 !important;
+    }
+
+    .modal-content {
+        max-height: calc(100vh - 120px);
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* === Navigation === */
+@media (max-width: 1280px) {
+
+    /* Fixed bottom navigation option */
+    .mobile-bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: white;
+        border-top: 1px solid #e7e5e4;
+        padding: 0.75rem 1rem;
+        z-index: 40;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+    }
+}
+
+/* === Images === */
+@media (max-width: 640px) {
+
+    /* Responsive images */
+    img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    /* Lazy load optimization */
+    img[loading="lazy"] {
+        content-visibility: auto;
+    }
+}
+
+/* === Scrolling === */
+@media (max-width: 1024px) {
+
+    /* Smooth scrolling on mobile */
+    html {
+        scroll-behavior: smooth;
+    }
+
+    /* Better touch scrolling */
+    * {
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Hide scrollbars but keep functionality */
+    .hide-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+    }
+
+    .hide-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+}
+
+/* === Layout === */
+@media (max-width: 640px) {
+
+    /* Stack flex items on mobile */
+    .mobile-stack {
+        flex-direction: column !important;
+    }
+
+    /* Full-width on mobile */
+    .mobile-full {
+        width: 100% !important;
+    }
+
+    /* Hide on mobile */
+    .mobile-hidden {
+        display: none !important;
+    }
+}
+
+/* === Buttons === */
+@media (max-width: 640px) {
+
+    /* Full-width primary buttons */
+    button.btn-primary,
+    .btn-primary {
+        width: 100%;
+        padding: 1rem !important;
+        font-size: 1rem !important;
+    }
+
+    /* Icon buttons */
+    .icon-button {
+        min-width: 44px;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
+/* === Tables === */
+@media (max-width: 768px) {
+
+    /* Responsive tables */
+    table {
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    /* Card-style table rows on mobile */
+    .table-responsive {
+        display: block;
+    }
+
+    .table-responsive thead {
+        display: none;
+    }
+
+    .table-responsive tbody,
+    .table-responsive tr,
+    .table-responsive td {
+        display: block;
+        width: 100%;
+    }
+
+    .table-responsive tr {
+        margin-bottom: 1rem;
+        border: 1px solid #e7e5e4;
+        border-radius: 0.5rem;
+        padding: 0.75rem;
+    }
+}
+
+/* === Loading States === */
+@media (max-width: 640px) {
+
+    /* Full-screen loading overlay */
+    .loading-overlay {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.95);
+        z-index: 9999;
+    }
+
+    .loading-spinner {
+        width: 48px;
+        height: 48px;
+    }
+}
+
+/* === Safe Areas (Notch Support) === */
+@supports (padding: max(0px)) {
+
+    /* iOS safe area insets */
+    .safe-top {
+        padding-top: max(1rem, env(safe-area-inset-top));
+    }
+
+    .safe-bottom {
+        padding-bottom: max(1rem, env(safe-area-inset-bottom));
+    }
+
+    .safe-left {
+        padding-left: max(1rem, env(safe-area-inset-left));
+    }
+
+    .safe-right {
+        padding-right: max(1rem, env(safe-area-inset-right));
+    }
+}
+
+/* === Performance === */
+@media (max-width: 640px) {
+
+    /* GPU acceleration for smooth animations */
+    .animate-smooth {
+        transform: translateZ(0);
+        will-change: transform;
+    }
+
+    /* Reduce motion for accessibility */
+    @media (prefers-reduced-motion: reduce) {
+        * {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+        }
+    }
+}
+
+/* === Landscape Mode === */
+@media (max-width: 896px) and (orientation: landscape) {
+
+    /* Optimize for landscape phones */
+    .landscape-hide {
+        display: none !important;
+    }
+
+    /* Reduce vertical spacing in landscape */
+    section {
+        padding-top: 1rem !important;
+        padding-bottom: 1rem !important;
+    }
+}
+
+/* === Dark Mode Support === */
+@media (prefers-color-scheme: dark) {
+    :root {
+        color-scheme: dark;
+    }
+}
+
+/* === Print Optimization === */
+@media print {
+    .print-hidden {
+        display: none !important;
+    }
+
+    a[href]:after {
+        content: none !important;
+    }
+}
+
+/* === Utility Classes === */
+
+/* Mobile-specific spacing */
+.mobile\:p-4 {
+    padding: 1rem !important;
+}
+
+.mobile\:px-4 {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+}
+
+.mobile\:py-4 {
+    padding-top: 1rem !important;
+    padding-bottom: 1rem !important;
+}
+
+.mobile\:m-0 {
+    margin: 0 !important;
+}
+
+.mobile\:mt-2 {
+    margin-top: 0.5rem !important;
+}
+
+.mobile\:mb-4 {
+    margin-bottom: 1rem !important;
+}
+
+/* Mobile text sizes */
+.mobile\:text-sm {
+    font-size: 0.875rem !important;
+}
+
+.mobile\:text-base {
+    font-size: 1rem !important;
+}
+
+.mobile\:text-lg {
+    font-size: 1.125rem !important;
+}
+
+/* Mobile flex */
+.mobile\:flex-col {
+    flex-direction: column !important;
+}
+
+.mobile\:items-stretch {
+    align-items: stretch !important;
+}
+
+.mobile\:justify-start {
+    justify-content: flex-start !important;
+}
+
+/* Mobile grid */
+.mobile\:grid-cols-1 {
+    grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+}
+
+.mobile\:grid-cols-2 {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+/* Mobile width */
+.mobile\:w-full {
+    width: 100% !important;
+}
+
+.mobile\:max-w-none {
+    max-width: none !important;
+}
+
+/* Mobile display */
+.mobile\:hidden {
+    display: none !important;
+}
+
+.mobile\:block {
+    display: block !important;
+}
+
+.mobile\:flex {
+    display: flex !important;
+}

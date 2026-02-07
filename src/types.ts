@@ -21,9 +21,14 @@ export interface Recipe {
   imageUrl?: string;
   generatedAt: number;
   source?: string;
+  userId?: string; // ID of the user who created the recipe
   author?: {
+    id?: string;
     username?: string;
+    displayName?: string;
     avatarUrl?: string;
+    followerCount?: number;
+    followingCount?: number;
   };
 }
 
@@ -69,4 +74,14 @@ export interface Notification {
   recipe?: {
     title: string;
   };
+}
+
+export interface Collection {
+  id: string;
+  userId: string;
+  name: string;
+  description?: string;
+  createdAt: number;
+  updatedAt: number;
+  recipeCount?: number;
 }

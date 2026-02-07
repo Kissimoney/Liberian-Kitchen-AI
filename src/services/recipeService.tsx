@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import { Recipe, RecipeComment, Notification } from '../types';
+import { Recipe, RecipeComment, Notification, Collection } from '../types';
 
 // Helper to handle image uploads
 async function ensureRecipeStored(recipe: Recipe, userId: string): Promise<Recipe> {
@@ -293,6 +293,160 @@ export const recipeService = {
         return data ? data.rating : null;
     },
 
+    // Collections
+    async getCollections(userId: string): Promise<Collection[]> {
+        const { data, error } = await supabase
+            .from('collections')
+            .select(`
+                id,
+                name,
+                description,
+                created_at,
+                updated_at,
+                collection_recipes(count)
+            `)
+            .eq('user_id', userId)
+            .order('updated_at', { ascending: false });
+
+        if (error) throw error;
+
+        return data.map((item: any) => ({
+            id: item.id,
+            userId: userId,
+            name: item.name,
+            description: item.description,
+            createdAt: new Date(item.created_at).getTime(),
+            updatedAt: new Date(item.updated_at).getTime(),
+            recipeCount: item.collection_recipes?.[0]?.count || 0
+        }));
+    },
+
+    async createCollection(userId: string, name: string, description?: string): Promise<Collection> {
+        const { data, error } = await supabase
+            .from('collections')
+            .insert({
+                user_id: userId,
+                name: name,
+                description: description
+            })
+            .select()
+            .single();
+
+        if (error) throw error;
+
+        return {
+            id: data.id,
+            userId: data.user_id,
+            name: data.name,
+            description: data.description,
+            createdAt: new Date(data.created_at).getTime(),
+            updatedAt: new Date(data.updated_at).getTime(),
+            recipeCount: 0
+        };
+    },
+
+    async updateCollection(collectionId: string, name: string, description?: string): Promise<void> {
+        const { error } = await supabase
+            .from('collections')
+            .update({
+                name: name,
+                description: description
+            })
+            .eq('id', collectionId);
+
+        if (error) throw error;
+    },
+
+    async deleteCollection(collectionId: string): Promise<void> {
+        const { error } = await supabase
+            .from('collections')
+            .delete()
+            .eq('id', collectionId);
+
+        if (error) throw error;
+    },
+
+    async getCollectionRecipes(collectionId: string): Promise<Recipe[]> {
+        const { data, error } = await supabase
+            .from('collection_recipes')
+            .select(`
+                recipe_id,
+                recipes (*)
+            `)
+            .eq('collection_id', collectionId);
+
+        if (error) throw error;
+
+        return data.map((item: any) => {
+            const recipe = item.recipes;
+            return {
+                id: recipe.id,
+                title: recipe.title,
+                description: recipe.description,
+                ingredients: recipe.ingredients || [],
+                instructions: recipe.instructions || [],
+                prepTime: recipe.prep_time,
+                cookTime: recipe.cook_time,
+                servings: recipe.servings,
+                tags: recipe.tags || [],
+                nutrients: recipe.nutrients || [],
+                imageUrl: recipe.image_url,
+                generatedAt: new Date(recipe.created_at).getTime(),
+                averageRating: recipe.average_rating || 0,
+                ratingCount: recipe.rating_count || 0
+            };
+        });
+    },
+
+    async addRecipeToCollection(collectionId: string, recipeId: string): Promise<void> {
+        const { error } = await supabase
+            .from('collection_recipes')
+            .insert({
+                collection_id: collectionId,
+                recipe_id: recipeId
+            });
+
+        if (error) throw error;
+    },
+
+    async removeRecipeFromCollection(collectionId: string, recipeId: string): Promise<void> {
+        const { error } = await supabase
+            .from('collection_recipes')
+            .delete()
+            .match({
+                collection_id: collectionId,
+                recipe_id: recipeId
+            });
+
+        if (error) throw error;
+    },
+
+    async getRecipeCollections(recipeId: string, userId: string): Promise<Collection[]> {
+        const { data, error } = await supabase
+            .from('collections')
+            .select(`
+                id,
+                name,
+                description,
+                created_at,
+                updated_at,
+                collection_recipes!inner(recipe_id)
+            `)
+            .eq('user_id', userId)
+            .eq('collection_recipes.recipe_id', recipeId);
+
+        if (error) throw error;
+
+        return data.map((item: any) => ({
+            id: item.id,
+            userId: userId,
+            name: item.name,
+            description: item.description,
+            createdAt: new Date(item.created_at).getTime(),
+            updatedAt: new Date(item.updated_at).getTime()
+        }));
+    },
+
     async getHistory(userId: string): Promise<Recipe[]> {
         const { data, error } = await supabase
             .from('history')
@@ -408,5 +562,105 @@ export const recipeService = {
             source: data.source,
             generatedAt: new Date(data.created_at).getTime()
         };
+    },
+
+    // Follow System
+    async followUser(followerId: string, followingId: string): Promise<void> {
+        const { error } = await supabase
+            .from('follows')
+            .insert({
+                follower_id: followerId,
+                following_id: followingId
+            });
+
+        if (error) throw error;
+    },
+
+    async unfollowUser(followerId: string, followingId: string): Promise<void> {
+        const { error } = await supabase
+            .from('follows')
+            .delete()
+            .match({
+                follower_id: followerId,
+                following_id: followingId
+            });
+
+        if (error) throw error;
+    },
+
+    async isFollowing(followerId: string, followingId: string): Promise<boolean> {
+        const { data, error } = await supabase
+            .from('follows')
+            .select('id')
+            .match({
+                follower_id: followerId,
+                following_id: followingId
+            })
+            .maybeSingle();
+
+        if (error) throw error;
+        return !!data;
+    },
+
+    async getFollowers(userId: string): Promise<any[]> {
+        const { data, error } = await supabase
+            .from('follows')
+            .select(`
+                follower_id,
+                created_at,
+                profiles:follower_id (
+                    user_id,
+                    display_name,
+                    bio,
+                    follower_count,
+                    following_count
+                )
+            `)
+            .eq('following_id', userId)
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        return data || [];
+    },
+
+    async getFollowing(userId: string): Promise<any[]> {
+        const { data, error } = await supabase
+            .from('follows')
+            .select(`
+                following_id,
+                created_at,
+                profiles:following_id (
+                    user_id,
+                    display_name,
+                    bio,
+                    follower_count,
+                    following_count
+                )
+            `)
+            .eq('follower_id', userId)
+            .order('created_at', { ascending: false });
+
+        if (error) throw error;
+        return data || [];
+    },
+
+    async getFollowerCount(userId: string): Promise<number> {
+        const { count, error } = await supabase
+            .from('follows')
+            .select('*', { count: 'exact', head: true })
+            .eq('following_id', userId);
+
+        if (error) throw error;
+        return count || 0;
+    },
+
+    async getFollowingCount(userId: string): Promise<number> {
+        const { count, error } = await supabase
+            .from('follows')
+            .select('*', { count: 'exact', head: true })
+            .eq('follower_id', userId);
+
+        if (error) throw error;
+        return count || 0;
     }
 };

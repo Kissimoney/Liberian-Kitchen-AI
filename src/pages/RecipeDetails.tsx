@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { ChefHat, Activity } from 'lucide-react';
+import { ChefHat, Activity, Printer, Download, MessageCircle } from 'lucide-react';
 import { Recipe } from '../types';
 import { cuisineDetails, CUISINES } from '../cuisineData';
 import { useRecipeSharing } from '../hooks/useRecipeSharing';
+import { useRecipeExport } from '../hooks/useRecipeExport';
 import { useAuth } from '../contexts/AuthContext';
 import { recipeService } from '../services/recipeService';
 
@@ -11,6 +12,7 @@ import { recipeService } from '../services/recipeService';
 import { RecipeHero } from '../components/Recipe/RecipeHero';
 import { QuickStats } from '../components/Recipe/QuickStats';
 import { SaveButton } from '../components/Recipe/SaveButton';
+import { CollectionsButton } from '../components/CollectionsButton';
 import { IngredientsList } from '../components/Recipe/IngredientsList';
 import { NutritionInfo } from '../components/Recipe/NutritionInfo';
 import { InstructionsList } from '../components/Recipe/InstructionsList';
@@ -59,6 +61,9 @@ export const RecipeDetails: React.FC = () => {
     handleFacebookShare,
     handleAddToCalendar
   } = useRecipeSharing(recipe);
+
+  // Export Hook
+  const { downloadAsPDF, shareViaWhatsApp } = useRecipeExport();
 
   useEffect(() => {
     const handleBeforePrint = () => setIsPrinting(true);
@@ -271,13 +276,252 @@ export const RecipeDetails: React.FC = () => {
       <style>
         {`
           @media print {
+            /* Page Setup */
             @page {
-              margin: 1.5cm;
-              size: auto;
+              size: A4;
+              margin: 1.5cm 2cm;
             }
-            body {
+
+            /* Reset & Base Styles */
+            * {
               -webkit-print-color-adjust: exact !important;
               print-color-adjust: exact !important;
+              box-shadow: none !important;
+            }
+
+            body {
+              font-size: 11pt;
+              line-height: 1.4;
+              color: #000;
+              background: white;
+            }
+
+            /* Hide Interactive Elements */
+            button, 
+            .print\\:hidden,
+            header,
+            footer,
+            nav,
+            [role="navigation"] {
+              display: none !important;
+            }
+
+            /* Typography */
+            h1 {
+              font-size: 24pt;
+              font-weight: bold;
+              margin-bottom: 12pt;
+              page-break-after: avoid;
+            }
+
+            h2 {
+              font-size: 16pt;
+              font-weight: bold;
+              margin-top: 16pt;
+              margin-bottom: 8pt;
+              page-break-after: avoid;
+            }
+
+            h3 {
+              font-size: 13pt;
+              font-weight: bold;
+              margin-top: 12pt;
+              margin-bottom: 6pt;
+              page-break-after: avoid;
+            }
+
+            p {
+              margin-bottom: 6pt;
+              orphans: 3;
+              widows: 3;
+            }
+
+            /* Recipe Header */
+            .recipe-header {
+              border-bottom: 2pt solid #d97706;
+              padding-bottom: 8pt;
+              margin-bottom: 12pt;
+            }
+
+            /* Ingredients Section */
+            .ingredients-section {
+              break-inside: avoid;
+              page-break-inside: avoid;
+              margin-bottom: 16pt;
+            }
+
+            .ingredients-section ul {
+              list-style-type: disc;
+              margin-left: 20pt;
+              margin-top: 6pt;
+            }
+
+            .ingredients-section li {
+              margin-bottom: 4pt;
+              page-break-inside: avoid;
+            }
+
+            /* Instructions Section */
+            .instructions-section {
+              page-break-before: auto;
+            }
+
+            .instructions-section ol {
+              counter-reset: step-counter;
+              list-style: none;
+              margin-top: 6pt;
+            }
+
+            .instructions-section li {
+              counter-increment: step-counter;
+              margin-bottom: 10pt;
+              padding-left: 30pt;
+              position: relative;
+              page-break-inside: avoid;
+            }
+
+            .instructions-section li::before {
+              content: counter(step-counter);
+              position: absolute;
+              left: 0;
+              top: 0;
+              width: 24pt;
+              height: 24pt;
+              border-radius: 50%;
+              background: #fbbf24;
+              color: #000;
+              font-weight: bold;
+              text-align: center;
+              line-height: 24pt;
+              font-size: 10pt;
+            }
+
+            /* Stats & Info Boxes */
+            .recipe-stats {
+              display: flex;
+              flex-wrap: wrap;
+              gap: 12pt;
+              margin-bottom: 12pt;
+              padding: 8pt;
+              border: 1pt solid #d1d5db;
+              border-radius: 4pt;
+              background: #f9fafb;
+            }
+
+            .stat-item {
+              flex: 0 0 auto;
+              min-width: 80pt;
+            }
+
+            /* Nutrition Info */
+            .nutrition-section {
+              break-inside: avoid;
+              page-break-inside: avoid;
+              margin-top: 12pt;
+              padding: 8pt;
+              border: 1pt solid #d1d5db;
+              border-radius: 4pt;
+            }
+
+            .nutrition-section table {
+              width: 100%;
+              border-collapse: collapse;
+            }
+
+            .nutrition-section th,
+            .nutrition-section td {
+              padding: 4pt 8pt;
+              text-align: left;
+              border-bottom: 0.5pt solid #e5e7eb;
+            }
+
+            .nutrition-section th {
+              font-weight: bold;
+              background: #f3f4f6;
+            }
+
+            /* Images */
+            img {
+              max-width: 100%;
+              height: auto;
+              page-break-inside: avoid;
+              break-inside: avoid;
+            }
+
+            .recipe-image {
+              max-height: 200pt;
+              object-fit: cover;
+              margin-bottom: 12pt;
+              border-radius: 4pt;
+            }
+
+            /* Two-Column Layout for Ingredients */
+            @supports (column-count: 2) {
+              .ingredients-list-long {
+                column-count: 2;
+                column-gap: 20pt;
+                column-rule: 0.5pt solid #e5e7eb;
+              }
+            }
+
+            /* Page Breaks */
+            .page-break-before {
+              page-break-before: always;
+            }
+
+            .page-break-after {
+              page-break-after: always;
+            }
+
+            .avoid-break {
+              page-break-inside: avoid;
+              break-inside: avoid;
+            }
+
+            /* Footer Info */
+            .print-footer {
+              margin-top: 24pt;
+              padding-top: 12pt;
+              border-top: 1pt solid #e5e7eb;
+              font-size: 9pt;
+              color: #666;
+              text-align: center;
+            }
+
+            /* QR Code / URL */
+            .print-url {
+              margin-top: 12pt;
+              font-size: 8pt;
+              color: #666;
+              text-align: right;
+            }
+
+            /* Optimize spacing */
+            .max-w-5xl,
+            .container {
+              max-width: 100% !important;
+              padding: 0 !important;
+              margin: 0 !important;
+            }
+
+            /* Remove unnecessary spacing */
+            .shadow-xl,
+            .shadow-lg,
+            .shadow-md,
+            .shadow {
+              box-shadow: none !important;
+            }
+
+            /* Backgrounds */
+            .bg-stone-50,
+            .bg-stone-100 {
+              background: transparent !important;
+            }
+
+            /* Borders */
+            .border-stone-200,
+            .border-stone-100 {
+              border-color: #e5e7eb !important;
             }
           }
         `}
@@ -285,7 +529,7 @@ export const RecipeDetails: React.FC = () => {
 
       <RecipeHero recipe={recipe} />
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 -mt-10 relative z-10 print:mt-0 print:px-0 print:static print:max-w-none print:w-full">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 -mt-10 relative z-10 print:mt-0 print:px-0 print:static print:max-w-none print:w-full" id="recipe-content">
         <div className="bg-white rounded-xl shadow-xl overflow-hidden border border-stone-100 print:shadow-none print:border-none print:rounded-none print:overflow-visible">
 
           <QuickStats
@@ -296,7 +540,43 @@ export const RecipeDetails: React.FC = () => {
             onRate={handleRate}
           />
 
-          <SaveButton isSaved={isSaved} onToggle={toggleSave} />
+          <div className="flex flex-wrap gap-3 px-8 py-4 border-b border-stone-100 print:hidden">
+            <SaveButton isSaved={isSaved} onToggle={toggleSave} />
+            <CollectionsButton recipeId={recipe.id} />
+
+            <button
+              onClick={async () => {
+                try {
+                  await downloadAsPDF(recipe, 'recipe-content');
+                } catch (error) {
+                  alert('Failed to generate PDF. Please try again.');
+                }
+              }}
+              className="flex items-center gap-2 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition-colors font-medium shadow-sm"
+              title="Download as PDF"
+            >
+              <Download size={18} />
+              <span className="hidden sm:inline">Download PDF</span>
+            </button>
+
+            <button
+              onClick={() => shareViaWhatsApp(recipe)}
+              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium shadow-sm"
+              title="Share via WhatsApp"
+            >
+              <MessageCircle size={18} />
+              <span className="hidden sm:inline">WhatsApp</span>
+            </button>
+
+            <button
+              onClick={() => window.print()}
+              className="flex items-center gap-2 px-4 py-2 bg-stone-100 text-stone-700 rounded-lg hover:bg-stone-200 transition-colors font-medium"
+              title="Print Recipe"
+            >
+              <Printer size={18} />
+              <span className="hidden sm:inline">Print</span>
+            </button>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 print:block">
             {/* Left Column: Ingredients & Nutrition */}

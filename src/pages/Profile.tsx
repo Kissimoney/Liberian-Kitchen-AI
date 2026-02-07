@@ -1,21 +1,41 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
-import { Loader2, Camera, Save, User } from 'lucide-react';
+import { recipeService } from '../services/recipeService';
+import { Loader2, Camera, Save, User, Users } from 'lucide-react';
 
 export const Profile: React.FC = () => {
     const { user } = useAuth();
+    const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
     const [username, setUsername] = useState('');
     const [avatarUrl, setAvatarUrl] = useState('');
+    const [followerCount, setFollowerCount] = useState(0);
+    const [followingCount, setFollowingCount] = useState(0);
     const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
 
     useEffect(() => {
         if (user) {
             getProfile();
+            loadFollowCounts();
         }
     }, [user]);
+
+    const loadFollowCounts = async () => {
+        if (!user) return;
+        try {
+            const [followers, following] = await Promise.all([
+                recipeService.getFollowerCount(user.id),
+                recipeService.getFollowingCount(user.id)
+            ]);
+            setFollowerCount(followers);
+            setFollowingCount(following);
+        } catch (error) {
+            console.error('Failed to load follow counts:', error);
+        }
+    };
 
     const getProfile = async () => {
         try {
@@ -179,6 +199,32 @@ export const Profile: React.FC = () => {
                                 className="w-full px-4 py-2 bg-white border border-stone-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent outline-none transition-shadow"
                                 placeholder="Chef John Doe"
                             />
+                        </div>
+
+                        {/* Follow Stats */}
+                        <div className="flex gap-6 pt-2">
+                            <button
+                                type="button"
+                                onClick={() => navigate(`/follow/${user!.id}/followers`)}
+                                className="flex items-center gap-2 text-stone-700 hover:text-amber-600 transition-colors"
+                            >
+                                <Users size={18} />
+                                <div className="text-left">
+                                    <p className="font-bold text-lg">{followerCount}</p>
+                                    <p className="text-xs text-stone-500">Followers</p>
+                                </div>
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => navigate(`/follow/${user!.id}/following`)}
+                                className="flex items-center gap-2 text-stone-700 hover:text-amber-600 transition-colors"
+                            >
+                                <Users size={18} />
+                                <div className="text-left">
+                                    <p className="font-bold text-lg">{followingCount}</p>
+                                    <p className="text-xs text-stone-500">Following</p>
+                                </div>
+                            </button>
                         </div>
                     </div>
                 </div>

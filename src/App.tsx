@@ -8,6 +8,9 @@ import { Community } from './pages/Community';
 import { History } from './pages/History';
 import { Profile } from './pages/Profile';
 import { Notifications } from './pages/Notifications';
+import { Collections } from './pages/Collections';
+import { CollectionDetail } from './pages/CollectionDetail';
+import { FollowList } from './pages/FollowList';
 import { AuthProvider } from './contexts/AuthContext';
 
 function App() {
@@ -21,9 +24,12 @@ function App() {
               <Route path="/" element={<Home />} />
               <Route path="/community" element={<Community />} />
               <Route path="/saved" element={<SavedRecipes />} />
+              <Route path="/collections" element={<Collections />} />
+              <Route path="/collections/:id" element={<CollectionDetail />} />
               <Route path="/history" element={<History />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/notifications" element={<Notifications />} />
+              <Route path="/follow/:userId/:tab" element={<FollowList />} />
               <Route path="/recipe/:id" element={<RecipeDetails />} />
             </Routes>
           </main>
