@@ -7,7 +7,7 @@ if (!apiKey) {
   console.error("GEMINI_API_KEY is not defined in process.env");
 }
 
-console.log("Initializing Gemini Service: v1beta with gemini-1.5-flash [VER_3_FINAL]");
+console.log("Initializing Gemini Service: v1 with gemini-1.5-flash [VER_4_COMPAT]");
 const genAI = new GoogleGenerativeAI(apiKey || 'DUMMY_KEY_FOR_BUILD');
 
 // Schema for structured recipe output
@@ -71,24 +71,25 @@ export const generateRecipeText = async (request: GenerationRequest): Promise<Om
   `;
 
   try {
-    // Using 'gemini-1.5-flash' on v1beta for reliable structured output
+    // Using stable 'v1' endpoint for maximum compatibility.
+    // Moving JSON requirements into the prompt to avoid API-specific schema errors.
     const model = genAI.getGenerativeModel(
       { model: "gemini-1.5-flash" },
-      { apiVersion: 'v1beta' }
+      { apiVersion: 'v1' }
     );
 
-    const result = await model.generateContent({
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: {
-        responseMimeType: "application/json",
-        responseSchema: recipeSchema,
-      }
-    });
+    const fullPrompt = `${prompt}
+    
+    IMPORTANT: Respond ONLY with a valid JSON object matching this structure:
+    ${JSON.stringify(recipeSchema, null, 2)}
+    
+    Ensure no markdown formatting (like \`\`\`json) is included, just the raw JSON object.`;
 
+    const result = await model.generateContent(fullPrompt);
     let text = result.response.text();
     if (!text) throw new Error("No response text from Gemini");
 
-    // Clean any potential markdown wrapping if it somehow slipped through
+    // Clean any potential markdown wrapping
     text = text.replace(/^```json\n?/, '').replace(/\n?```$/, '').trim();
 
     return JSON.parse(text) as Omit<Recipe, 'id' | 'generatedAt'>;
@@ -128,17 +129,17 @@ export const generateRecipeVariation = async (originalRecipe: Recipe, instructio
   try {
     const model = genAI.getGenerativeModel(
       { model: "gemini-1.5-flash" },
-      { apiVersion: 'v1beta' }
+      { apiVersion: 'v1' }
     );
 
-    const result = await model.generateContent({
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: {
-        responseMimeType: "application/json",
-        responseSchema: recipeSchema,
-      }
-    });
+    const fullPrompt = `${prompt}
+    
+    IMPORTANT: Respond ONLY with a valid JSON object matching this structure:
+    ${JSON.stringify(recipeSchema, null, 2)}
+    
+    Ensure no markdown wrapping.`;
 
+    const result = await model.generateContent(fullPrompt);
     let text = result.response.text();
     if (!text) throw new Error("No response text from Gemini");
 
