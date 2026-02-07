@@ -7,6 +7,7 @@ if (!apiKey) {
   console.error("GEMINI_API_KEY is not defined in process.env");
 }
 
+console.log("Initializing Gemini Service: v1beta with gemini-1.5-flash");
 const genAI = new GoogleGenerativeAI(apiKey || 'DUMMY_KEY_FOR_BUILD');
 
 // Schema for structured recipe output
@@ -70,10 +71,9 @@ export const generateRecipeText = async (request: GenerationRequest): Promise<Om
   `;
 
   try {
-    // Switching back to v1beta because structured output (schema) is most stable there
-    // and using 'flash-latest' to ensure we get the latest available version.
+    // Using 'gemini-1.5-flash' on v1beta for reliable structured output
     const model = genAI.getGenerativeModel(
-      { model: "gemini-1.5-flash-latest" },
+      { model: "gemini-1.5-flash" },
       { apiVersion: 'v1beta' }
     );
 
@@ -127,7 +127,7 @@ export const generateRecipeVariation = async (originalRecipe: Recipe, instructio
 
   try {
     const model = genAI.getGenerativeModel(
-      { model: "gemini-1.5-flash-latest" },
+      { model: "gemini-1.5-flash" },
       { apiVersion: 'v1beta' }
     );
 
