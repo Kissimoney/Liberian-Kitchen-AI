@@ -7,7 +7,7 @@ if (!apiKey) {
   console.error("GEMINI_API_KEY is not defined in process.env");
 }
 
-console.log("Initializing Gemini Service: v1 with gemini-1.5-flash-latest [VER_7_1.5_FALLBACK]");
+console.log("Initializing Gemini Service: v1 with gemini-2.0-flash [VER_8_2.0_STABLE_WAIT]");
 const genAI = new GoogleGenerativeAI(apiKey || 'DUMMY_KEY_FOR_BUILD');
 
 // Schema for structured recipe output
@@ -73,10 +73,11 @@ export const generateRecipeText = async (request: GenerationRequest): Promise<Om
   try {
     // Using stable 'v1' endpoint for maximum compatibility.
     // Moving JSON requirements into the prompt to avoid API-specific schema errors.
-    // Fallback to 1.5-flash which might have a different quota bucket or be less congested
+    // Reverting to 2.0-flash as 1.5 failed. 
+    // If 429 occurs, the user MUST wait.
     const model = genAI.getGenerativeModel(
-      { model: "gemini-1.5-flash-latest" },
-      { apiVersion: 'v1beta' } // 1.5-flash often works better on v1beta for some keys
+      { model: "gemini-2.0-flash" },
+      { apiVersion: 'v1' }
     );
 
     const fullPrompt = `${prompt}
@@ -129,8 +130,8 @@ export const generateRecipeVariation = async (originalRecipe: Recipe, instructio
 
   try {
     const model = genAI.getGenerativeModel(
-      { model: "gemini-1.5-flash-latest" },
-      { apiVersion: 'v1beta' }
+      { model: "gemini-2.0-flash" },
+      { apiVersion: 'v1' }
     );
 
     const fullPrompt = `${prompt}
