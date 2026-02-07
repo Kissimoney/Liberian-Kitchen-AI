@@ -10,7 +10,7 @@ if (!apiKey) {
 const genAI = new GoogleGenerativeAI(apiKey || 'DUMMY_KEY_FOR_BUILD');
 
 // Schema for structured recipe output
-const recipeSchema = {
+const recipeSchema: any = {
   type: SchemaType.OBJECT,
   properties: {
     title: { type: SchemaType.STRING, description: "The authentic name of the dish" },
@@ -70,15 +70,19 @@ export const generateRecipeText = async (request: GenerationRequest): Promise<Om
   `;
 
   try {
-    const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash",
+    const model = genAI.getGenerativeModel(
+      { model: "gemini-1.5-flash" },
+      { apiVersion: 'v1' }
+    );
+
+    const result = await model.generateContent({
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
       generationConfig: {
         responseMimeType: "application/json",
         responseSchema: recipeSchema,
       }
     });
 
-    const result = await model.generateContent(prompt);
     const text = result.response.text();
     if (!text) throw new Error("No response text from Gemini");
 
@@ -117,15 +121,19 @@ export const generateRecipeVariation = async (originalRecipe: Recipe, instructio
   `;
 
   try {
-    const model = genAI.getGenerativeModel({
-      model: "gemini-1.5-flash",
+    const model = genAI.getGenerativeModel(
+      { model: "gemini-1.5-flash" },
+      { apiVersion: 'v1' }
+    );
+
+    const result = await model.generateContent({
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
       generationConfig: {
         responseMimeType: "application/json",
         responseSchema: recipeSchema,
       }
     });
 
-    const result = await model.generateContent(prompt);
     const text = result.response.text();
     if (!text) throw new Error("No response text from Gemini");
 
