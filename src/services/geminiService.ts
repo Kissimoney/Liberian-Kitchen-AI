@@ -1,50 +1,51 @@
-import { GoogleGenAI, Type, GenerateContentResponse } from "@google/genai";
+import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 import { Recipe, GenerationRequest } from "../types";
 
-const apiKey = process.env.API_KEY;
+const apiKey = process.env.GEMINI_API_KEY || process.env.API_KEY;
 
 if (!apiKey) {
-  console.error("API_KEY is not defined in process.env");
+  console.error("GEMINI_API_KEY is not defined in process.env");
 }
 
-const ai = new GoogleGenAI({ apiKey: apiKey || 'DUMMY_KEY_FOR_BUILD' });
+const genAI = new GoogleGenerativeAI(apiKey || 'DUMMY_KEY_FOR_BUILD');
 
 // Schema for structured recipe output
 const recipeSchema = {
-  type: Type.OBJECT,
+  type: SchemaType.OBJECT,
   properties: {
-    title: { type: Type.STRING, description: "The authentic name of the dish" },
-    description: { type: Type.STRING, description: "A short, appetizing description of the dish and its cultural significance" },
+    title: { type: SchemaType.STRING, description: "The authentic name of the dish" },
+    description: { type: SchemaType.STRING, description: "A short, appetizing description of the dish and its cultural significance" },
     ingredients: {
-      type: Type.ARRAY,
-      items: { type: Type.STRING },
+      type: SchemaType.ARRAY,
+      items: { type: SchemaType.STRING },
       description: "List of ingredients with quantities"
     },
     instructions: {
-      type: Type.ARRAY,
-      items: { type: Type.STRING },
+      type: SchemaType.ARRAY,
+      items: { type: SchemaType.STRING },
       description: "Step-by-step cooking instructions"
     },
-    prepTime: { type: Type.STRING, description: "Preparation time (e.g., '15 mins')" },
-    cookTime: { type: Type.STRING, description: "Cooking time (e.g., '45 mins')" },
-    servings: { type: Type.NUMBER, description: "Number of servings" },
-    temperature: { type: Type.STRING, description: "Recommended cooking temperature or heat level (e.g., '375°F', 'Medium-High', 'Simmer')" },
-    averageRating: { type: Type.NUMBER, description: "A simulated average rating for this popular dish (between 4.0 and 5.0)" },
-    ratingCount: { type: Type.NUMBER, description: "A simulated number of reviews (e.g. 42, 150)" },
+    prepTime: { type: SchemaType.STRING, description: "Preparation time (e.g., '15 mins')" },
+    cookTime: { type: SchemaType.STRING, description: "Cooking time (e.g., '45 mins')" },
+    servings: { type: SchemaType.NUMBER, description: "Number of servings" },
+    temperature: { type: SchemaType.STRING, description: "Recommended cooking temperature or heat level (e.g., '375°F', 'Medium-High', 'Simmer')" },
+    averageRating: { type: SchemaType.NUMBER, description: "A simulated average rating for this popular dish (between 4.0 and 5.0)" },
+    ratingCount: { type: SchemaType.NUMBER, description: "A simulated number of reviews (e.g. 42, 150)" },
     tags: {
-      type: Type.ARRAY,
-      items: { type: Type.STRING },
+      type: SchemaType.ARRAY,
+      items: { type: SchemaType.STRING },
       description: "Tags like 'Soup', 'Rice', 'Spicy', 'Breakfast'"
     },
     nutrients: {
-      type: Type.ARRAY,
+      type: SchemaType.ARRAY,
       items: {
-        type: Type.OBJECT,
+        type: SchemaType.OBJECT,
         properties: {
-          name: { type: Type.STRING, description: "Nutrient name (Protein, Carbs, Fat)" },
-          value: { type: Type.NUMBER, description: "Amount" },
-          unit: { type: Type.STRING, description: "Unit (g, mg, kcal)" }
-        }
+          name: { type: SchemaType.STRING, description: "Nutrient name (Protein, Carbs, Fat)" },
+          value: { type: SchemaType.NUMBER, description: "Amount" },
+          unit: { type: SchemaType.STRING, description: "Unit (g, mg, kcal)" }
+        },
+        required: ["name", "value", "unit"]
       },
       description: "Estimated nutritional content per serving (Protein, Carbs, Fat, Calories)"
     }
@@ -69,16 +70,16 @@ export const generateRecipeText = async (request: GenerationRequest): Promise<Om
   `;
 
   try {
-    const response = await ai.models.generateContent({
+    const model = genAI.getGenerativeModel({
       model: "gemini-1.5-flash",
-      contents: prompt,
-      config: {
+      generationConfig: {
         responseMimeType: "application/json",
         responseSchema: recipeSchema,
-      },
+      }
     });
 
-    const text = response.text;
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
     if (!text) throw new Error("No response text from Gemini");
 
     return JSON.parse(text) as Omit<Recipe, 'id' | 'generatedAt'>;
@@ -89,39 +90,15 @@ export const generateRecipeText = async (request: GenerationRequest): Promise<Om
 };
 
 export const generateRecipeImage = async (recipeTitle: string): Promise<string | undefined> => {
-  const prompt = `A professional, high-resolution food photography shot of the dish "${recipeTitle}". 
-  The food should look hot, appetizing, and freshly made. 
-  Styled on a rustic wooden table with authentic regional textiles in the background. 
-  Warm lighting, top-down or 45-degree angle.`;
+  // NOTE: gemini-1.5-flash does not natively generate images via the generative-ai SDK in this way 
+  // (it supports multimodal inputs, but not image output in one go).
+  // However, your original service was using it for images. 
+  // If you want real image generation, you usually use an Imagen model or a different service.
+  // For now, I'll return undefined to trigger the Unsplash fallback we built, 
+  // or use a structured prompt if you have a specific image model.
 
-  try {
-    const response: GenerateContentResponse = await ai.models.generateContent({
-      model: 'gemini-1.5-flash',
-      contents: {
-        parts: [
-          { text: prompt }
-        ]
-      }
-    });
-
-    // Iterate parts to find the image
-    const parts = response.candidates?.[0]?.content?.parts;
-    if (parts) {
-      for (const part of parts) {
-        if (part.inlineData && part.inlineData.data) {
-          return `data:${part.inlineData.mimeType};base64,${part.inlineData.data}`;
-        }
-      }
-    }
-    return undefined;
-  } catch (error: any) {
-    if (error.status === 429 || error.message?.includes('429')) {
-      console.warn("Gemini Image Generation Quota Exceeded. Using placeholder image.");
-    } else {
-      console.error("Error generating recipe image:", error.message || error);
-    }
-    return undefined; // Fail silently for images, UI will show placeholder
-  }
+  // Since the original was failing anyway, let's let the Unsplash fallback handle it.
+  return undefined;
 };
 
 export const generateRecipeVariation = async (originalRecipe: Recipe, instruction: string): Promise<Omit<Recipe, 'id' | 'generatedAt'>> => {
@@ -135,21 +112,21 @@ export const generateRecipeVariation = async (originalRecipe: Recipe, instructio
     Instructions: ${originalRecipe.instructions.join('. ')}
     
     Ensure the modified recipe maintains the same JSON structure and only changes what is necessary based on the instruction (e.g., swapping ingredients, adjusting steps, or changing the flavor profile).
-    If the title should chance to reflect the variation (e.g., "Spicy Jollof Rice"), please change it.
-    Recalculate nutrition and nutrition if necessary.
+    If the title should change to reflect the variation (e.g., "Spicy Jollof Rice"), please change it.
+    Recalculate nutrition and timing if necessary.
   `;
 
   try {
-    const response = await ai.models.generateContent({
+    const model = genAI.getGenerativeModel({
       model: "gemini-1.5-flash",
-      contents: prompt,
-      config: {
+      generationConfig: {
         responseMimeType: "application/json",
         responseSchema: recipeSchema,
-      },
+      }
     });
 
-    const text = response.text;
+    const result = await model.generateContent(prompt);
+    const text = result.response.text();
     if (!text) throw new Error("No response text from Gemini");
 
     return JSON.parse(text) as Omit<Recipe, 'id' | 'generatedAt'>;
