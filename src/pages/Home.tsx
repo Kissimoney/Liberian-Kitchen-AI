@@ -71,7 +71,20 @@ export const Home: React.FC = () => {
 
     } catch (err: any) {
       console.error(err);
-      setError("Failed to generate recipe. Please try again.");
+      console.error(err);
+
+      let errorMessage = "Failed to generate recipe. Please try again.";
+      const errorString = err.toString();
+
+      if (errorString.includes("429") || errorString.includes("Quota")) {
+        errorMessage = "⚠️ Too many requests! Please wait 1 minute and try again.";
+      } else if (errorString.includes("404")) {
+        errorMessage = "⚠️ AI Model unavailable. Please contact support.";
+      } else if (err.message) {
+        errorMessage = `Error: ${err.message}`;
+      }
+
+      setError(errorMessage);
       setStatus(LoadingState.ERROR);
     }
   };
