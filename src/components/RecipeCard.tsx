@@ -38,9 +38,11 @@ export const RecipeCard: React.FC<RecipeCardProps> = ({ recipe, onClick, isSaved
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-stone-400 bg-stone-100">
-            <span className="text-4xl">🍳</span>
-          </div>
+          <img
+            src={`https://source.unsplash.com/featured/800x600?food,plate,${encodeURIComponent(recipe.title)}`}
+            alt={recipe.title}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          />
         )}
 
         {/* Actions - Top Left */}

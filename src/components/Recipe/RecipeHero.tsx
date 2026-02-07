@@ -13,7 +13,7 @@ export const RecipeHero: React.FC<RecipeHeroProps> = ({ recipe }) => {
     return (
         <div className="relative h-64 sm:h-96 w-full bg-stone-900 print:h-auto print:bg-transparent print:mb-4 print:border-none recipe-header overflow-hidden">
             <img
-                src={recipe.imageUrl || "https://picsum.photos/1200/600"}
+                src={recipe.imageUrl || `https://source.unsplash.com/featured/1200x800?food,cuisine,${encodeURIComponent(recipe.title)}`}
                 alt={recipe.title}
                 className="w-full h-full object-cover opacity-75 sm:opacity-80 recipe-image print:hidden"
             />
