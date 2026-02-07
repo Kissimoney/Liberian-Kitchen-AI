@@ -70,9 +70,11 @@ export const generateRecipeText = async (request: GenerationRequest): Promise<Om
   `;
 
   try {
+    // Switching back to v1beta because structured output (schema) is most stable there
+    // and using 'flash-latest' to ensure we get the latest available version.
     const model = genAI.getGenerativeModel(
-      { model: "gemini-1.5-flash" },
-      { apiVersion: 'v1' }
+      { model: "gemini-1.5-flash-latest" },
+      { apiVersion: 'v1beta' }
     );
 
     const result = await model.generateContent({
@@ -83,8 +85,11 @@ export const generateRecipeText = async (request: GenerationRequest): Promise<Om
       }
     });
 
-    const text = result.response.text();
+    let text = result.response.text();
     if (!text) throw new Error("No response text from Gemini");
+
+    // Clean any potential markdown wrapping if it somehow slipped through
+    text = text.replace(/^```json\n?/, '').replace(/\n?```$/, '').trim();
 
     return JSON.parse(text) as Omit<Recipe, 'id' | 'generatedAt'>;
   } catch (error) {
@@ -122,8 +127,8 @@ export const generateRecipeVariation = async (originalRecipe: Recipe, instructio
 
   try {
     const model = genAI.getGenerativeModel(
-      { model: "gemini-1.5-flash" },
-      { apiVersion: 'v1' }
+      { model: "gemini-1.5-flash-latest" },
+      { apiVersion: 'v1beta' }
     );
 
     const result = await model.generateContent({
@@ -134,8 +139,11 @@ export const generateRecipeVariation = async (originalRecipe: Recipe, instructio
       }
     });
 
-    const text = result.response.text();
+    let text = result.response.text();
     if (!text) throw new Error("No response text from Gemini");
+
+    // Clean any potential markdown wrapping
+    text = text.replace(/^```json\n?/, '').replace(/\n?```$/, '').trim();
 
     return JSON.parse(text) as Omit<Recipe, 'id' | 'generatedAt'>;
   } catch (error) {
