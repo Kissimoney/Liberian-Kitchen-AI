@@ -70,7 +70,7 @@ export const generateRecipeText = async (request: GenerationRequest): Promise<Om
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-3-flash-preview",
+      model: "gemini-1.5-flash",
       contents: prompt,
       config: {
         responseMimeType: "application/json",
@@ -96,7 +96,7 @@ export const generateRecipeImage = async (recipeTitle: string): Promise<string |
 
   try {
     const response: GenerateContentResponse = await ai.models.generateContent({
-      model: 'gemini-2.0-flash-exp',
+      model: 'gemini-1.5-flash',
       contents: {
         parts: [
           { text: prompt }
@@ -136,12 +136,12 @@ export const generateRecipeVariation = async (originalRecipe: Recipe, instructio
     
     Ensure the modified recipe maintains the same JSON structure and only changes what is necessary based on the instruction (e.g., swapping ingredients, adjusting steps, or changing the flavor profile).
     If the title should chance to reflect the variation (e.g., "Spicy Jollof Rice"), please change it.
-    Recalculate nutrition and timing if necessary.
+    Recalculate nutrition and nutrition if necessary.
   `;
 
   try {
     const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash-exp", // Standard Flash is good for text, faster
+      model: "gemini-1.5-flash",
       contents: prompt,
       config: {
         responseMimeType: "application/json",

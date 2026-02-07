@@ -13,8 +13,8 @@ export const NutrientBarChart: React.FC<NutrientBarChartProps> = ({ data }) => {
   const chartData = data.filter(d => d.name.toLowerCase() !== 'calories');
 
   return (
-    <div className="h-64 w-full">
-      <ResponsiveContainer width="100%" height="100%">
+    <div className="h-64 sm:h-80 w-full min-h-[250px]">
+      <ResponsiveContainer width="95%" height="100%" minHeight={250}>
         <BarChart
           data={chartData}
           margin={{
@@ -25,26 +25,26 @@ export const NutrientBarChart: React.FC<NutrientBarChartProps> = ({ data }) => {
           }}
         >
           <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e7e5e4" />
-          <XAxis 
-            dataKey="name" 
-            tick={{ fill: '#78716c', fontSize: 12 }} 
+          <XAxis
+            dataKey="name"
+            tick={{ fill: '#78716c', fontSize: 12 }}
             axisLine={{ stroke: '#e7e5e4' }}
             tickLine={false}
             interval={0}
           />
-          <YAxis 
-            tick={{ fill: '#78716c', fontSize: 12 }} 
+          <YAxis
+            tick={{ fill: '#78716c', fontSize: 12 }}
             axisLine={{ stroke: '#e7e5e4' }}
             tickLine={false}
           />
-          <Tooltip 
+          <Tooltip
             contentStyle={{ backgroundColor: '#fffaf0', borderColor: '#e7e5e4', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
             itemStyle={{ color: '#44403c', fontWeight: 600 }}
             cursor={{ fill: '#f5f5f4' }}
             formatter={(value: number, name: string, props: any) => [`${value} ${props.payload.unit}`, name]}
           />
           <Bar dataKey="value" radius={[4, 4, 0, 0]} name="Amount">
-             {chartData.map((entry, index) => (
+            {chartData.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
             ))}
           </Bar>
