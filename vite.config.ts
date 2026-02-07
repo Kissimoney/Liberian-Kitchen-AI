@@ -26,7 +26,7 @@ export default defineConfig(({ mode }) => {
           display: 'standalone'
         },
         workbox: {
-          maximumFileSizeToCacheInBytes: 4000000
+          maximumFileSizeToCacheInBytes: 5000000
         }
       })
     ],
