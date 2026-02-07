@@ -6,8 +6,7 @@ import { AuthModal } from './Auth/AuthModal';
 
 export const Header: React.FC = () => {
   const location = useLocation();
-  const { user, signOut } = useAuth();
-  const [isAuthOpen, setIsAuthOpen] = useState(false);
+  const { user, signOut, showAuthModal, openAuthModal, closeAuthModal } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const isActive = (path: string) => location.pathname.startsWith(path);
@@ -87,7 +86,7 @@ export const Header: React.FC = () => {
                   </>
                 ) : (
                   <button
-                    onClick={() => setIsAuthOpen(true)}
+                    onClick={openAuthModal}
                     className="bg-stone-900 text-white px-5 py-2.5 rounded-full text-sm font-bold hover:bg-amber-600 transition-all shadow-sm"
                   >
                     Sign In
@@ -224,7 +223,7 @@ export const Header: React.FC = () => {
                   <div className="border-t border-stone-200 my-3"></div>
                   <button
                     onClick={() => {
-                      setIsAuthOpen(true);
+                      openAuthModal();
                       setIsMobileMenuOpen(false);
                     }}
                     className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-stone-900 to-stone-800 text-white px-4 py-4 rounded-xl font-bold text-base hover:from-amber-600 hover:to-orange-600 transition-all shadow-lg active:scale-95"
@@ -239,7 +238,7 @@ export const Header: React.FC = () => {
         )}
       </header>
 
-      <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
+      <AuthModal isOpen={showAuthModal} onClose={closeAuthModal} />
     </>
   );
 };

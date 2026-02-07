@@ -11,7 +11,7 @@ import { CUISINES } from '../cuisineData';
 export const Home: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useAuth();
+  const { user, openAuthModal } = useAuth();
   const [query, setQuery] = useState('');
   const [cuisine, setCuisine] = useState('Liberian');
   const [isVegetarian, setIsVegetarian] = useState(false);
@@ -32,6 +32,12 @@ export const Home: React.FC = () => {
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!user) {
+      openAuthModal();
+      return;
+    }
+
     if (!query.trim()) return;
 
     setStatus(LoadingState.GENERATING_TEXT);
@@ -209,15 +215,15 @@ export const Home: React.FC = () => {
 
             <button
               type="submit"
-              disabled={!query || status !== LoadingState.IDLE}
-              className={`w-full py-3.5 sm:py-4 rounded-xl font-bold text-base sm:text-lg text-white shadow-lg flex items-center justify-center gap-2 transition-all transform active:scale-95 min-h-[52px] ${!query || status !== LoadingState.IDLE
+              disabled={(!query && !!user) || status !== LoadingState.IDLE}
+              className={`w-full py-3.5 sm:py-4 rounded-xl font-bold text-base sm:text-lg text-white shadow-lg flex items-center justify-center gap-2 transition-all transform active:scale-95 min-h-[52px] ${(!query && !!user) || status !== LoadingState.IDLE
                 ? 'bg-stone-300 cursor-not-allowed'
                 : 'bg-gradient-to-r from-amber-600 to-orange-600 hover:from-amber-700 hover:to-orange-700 shadow-amber-500/20'
                 }`}
             >
               {status === LoadingState.IDLE && (
                 <>
-                  <Sparkles size={20} /> <span className="relative top-[1px]">Generate Recipe</span>
+                  <Sparkles size={20} /> <span className="relative top-[1px]">{user ? "Generate Recipe" : "Sign In to Generate"}</span>
                 </>
               )}
               {status === LoadingState.GENERATING_TEXT && (

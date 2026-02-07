@@ -7,7 +7,7 @@ if (!apiKey) {
   console.error("GEMINI_API_KEY is not defined in process.env");
 }
 
-console.log("Initializing Gemini Service: v1 with gemini-2.5-flash [VER_10_2.5_NEW_ERA]");
+console.log("Initializing Gemini Service: v1 with gemini-2.0-flash [VER_11_2.0_STABLE]");
 const genAI = new GoogleGenerativeAI(apiKey || 'DUMMY_KEY_FOR_BUILD');
 
 // Schema for structured recipe output
@@ -76,7 +76,7 @@ export const generateRecipeText = async (request: GenerationRequest): Promise<Om
     // Reverting to 2.0-flash as 1.5 failed. 
     // If 429 occurs, the user MUST wait.
     const model = genAI.getGenerativeModel(
-      { model: "gemini-2.5-flash" },
+      { model: "gemini-2.0-flash" },
       { apiVersion: 'v1' }
     );
 

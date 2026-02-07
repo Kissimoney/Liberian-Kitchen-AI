@@ -7,6 +7,9 @@ interface AuthContextType {
     user: User | null;
     loading: boolean;
     signOut: () => Promise<void>;
+    showAuthModal: boolean;
+    openAuthModal: () => void;
+    closeAuthModal: () => void;
 }
 
 const AuthContext = createContext<AuthContextType>({
@@ -14,6 +17,9 @@ const AuthContext = createContext<AuthContextType>({
     user: null,
     loading: true,
     signOut: async () => { },
+    showAuthModal: false,
+    openAuthModal: () => { },
+    closeAuthModal: () => { },
 });
 
 import { recipeService } from '../services/recipeService';
@@ -22,6 +28,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const [session, setSession] = useState<Session | null>(null);
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
+    const [showAuthModal, setShowAuthModal] = useState(false);
+
+    const openAuthModal = () => setShowAuthModal(true);
+    const closeAuthModal = () => setShowAuthModal(false);
 
     // Helper to sync local recipes to cloud
     const syncLocalRecipes = async (userId: string) => {
@@ -59,8 +69,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setUser(session?.user ?? null);
             setLoading(false);
 
-            if (event === 'SIGNED_IN' && session?.user) {
-                syncLocalRecipes(session.user.id);
+            if (event === 'SIGNED_IN') {
+                closeAuthModal(); // Close modal on successful sign in
+                if (session?.user) {
+                    syncLocalRecipes(session.user.id);
+                }
             }
         });
 
@@ -72,7 +85,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     };
 
     return (
-        <AuthContext.Provider value={{ session, user, loading, signOut }}>
+        <AuthContext.Provider value={{ session, user, loading, signOut, showAuthModal, openAuthModal, closeAuthModal }}>
             {children}
         </AuthContext.Provider>
     );
